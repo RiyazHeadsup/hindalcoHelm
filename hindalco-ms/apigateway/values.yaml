@@ -1,0 +1,31 @@
+deploymentName: apigateway-deployment
+serviceName: apigateway
+appLabel: apigateway
+appName: apigateway
+
+replicaCount: 1
+
+image:
+  repository: hcorptech/apigateway
+  tag: 0.0.1
+
+containerPort: 9090
+
+service:
+  type: LoadBalancer
+  port: 9090
+  targetPort: 9090
+
+resources:
+  requests:
+    cpu: "200m"
+    memory: "256Mi"
+  limits:
+    cpu: "500m"
+    memory: "512Mi"
+
+appname_enabled: true
+profile_enabled: true
+discovery_enable: true
+mongo_host_enable: true
+jwt_enable: true
