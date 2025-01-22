@@ -1,3 +1,4 @@
+# Existing global values
 global:
   configMapName: hindalcodev-configmap
   activeProfile: default
@@ -7,3 +8,19 @@ global:
   mongodb_database: hindalco
   secret_jwt: abcd123abcd123
   exprire_jwt: 360000
+
+# API Gateway specific config with ingress enabled
+apigateway:
+  ingress:
+    enabled: true
+    host: "localhost"
+    path: "/"
+    pathType: "Prefix"
+
+# Discovery service config
+discovery:
+  ingress:
+    enabled: true
+    host: "localhost"
+    path: "/eureka"
+    pathType: "Prefix"
