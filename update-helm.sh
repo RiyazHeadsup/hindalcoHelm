@@ -19,6 +19,7 @@ SERVICES=(
     "plantmicroservice"
     "readerservice"
     "userservice"
+    "broker"
 )
 
 # Go to microservices directory

@@ -23,5 +23,8 @@ dependencies:
 - name: reader
   repository: file://../../hindalco-ms/readerservice
   version: 0.1.0
-digest: sha256:6d9a1c8cdf4559beafe41a4c5847528888800e5467528c6042accee44554ea30
-generated: "2025-01-22T22:23:32.876977+05:30"
+- name: broker
+  repository: file://../../hindalco-ms/broker
+  version: 0.1.0
+digest: sha256:b8c9267c5687ce670c582e6ab5425e2e2c21b1ea7abcc3cde3524068481bb232
+generated: "2025-02-05T16:04:35.088966+05:30"

@@ -1,5 +1,5 @@
 apiVersion: v2
-name: dev-env
+name: broker
 description: A Helm chart for Kubernetes
 
 # A chart can be either an 'application' or a 'library' chart.
@@ -27,35 +27,3 @@ dependencies:
 - name: hindalco-common
   version: 0.1.0
   repository: file://../../hindalco-common
-
-- name: discovery
-  version: 0.1.0
-  repository: file://../../hindalco-ms/discovery
-
-- name: apigateway
-  version: 0.1.0
-  repository: file://../../hindalco-ms/apigateway
-
-- name: user
-  version: 0.1.0
-  repository: file://../../hindalco-ms/userservice
-
-- name: iot
-  version: 0.1.0
-  repository: file://../../hindalco-ms/iotservice
-
-- name: helper
-  version: 0.1.0
-  repository: file://../../hindalco-ms/helperservice
-
-- name: plant
-  version: 0.1.0
-  repository: file://../../hindalco-ms/plantmicroservice
-
-- name: reader
-  version: 0.1.0
-  repository: file://../../hindalco-ms/readerservice
-
-- name: broker
-  version: 0.1.0
-  repository: file://../../hindalco-ms/broker

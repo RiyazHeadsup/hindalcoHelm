@@ -1,9 +1,8 @@
-# Values file for API Gateway (apigateway/values.yaml)
 deploymentName: apigateway-deployment
 serviceName: apigateway
 appLabel: apigateway
 appName: apigateway
-replicaCount: 1
+replicaCount: 2
 
 image:
   repository: hcorptech/apigateway
@@ -35,6 +34,10 @@ jwt_enable: true
 ingress:
   enabled: true
   host: "localhost"
-  path: "/"
+  path: "/api"
   pathType: "Prefix"
-  ingressType: "nginx"
+  ingressType: "haproxy" # Changed from nginx to haproxy
+  annotations:
+    kubernetes.io/ingress.class: "haproxy"
+    ingress.kubernetes.io/ssl-redirect: "false"
+    ingress.kubernetes.io/rewrite-target: "/"

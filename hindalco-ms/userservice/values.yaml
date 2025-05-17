@@ -4,7 +4,6 @@ appLabel: user
 appName: user
 nameOverride: "user"
 fullnameOverride: "user"
-
 replicaCount: 1
 
 image:

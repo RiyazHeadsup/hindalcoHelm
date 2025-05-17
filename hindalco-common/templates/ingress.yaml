@@ -6,12 +6,15 @@ metadata:
   name: {{ .Values.deploymentName }}-ingress
   labels:
     app: {{ .Values.appLabel }}
-  {{- with .Values.ingress.annotations }}
   annotations:
+    kubernetes.io/ingress.class: haproxy
+    ingress.kubernetes.io/ssl-redirect: "false"
+    ingress.kubernetes.io/rewrite-target: "/"
+    {{- with .Values.ingress.annotations }}
     {{- toYaml . | nindent 4 }}
-  {{- end }}
+    {{- end }}
 spec:
-  ingressClassName: {{.Values.ingress.ingressType}}
+  ingressClassName: {{ .Values.ingress.ingressType }}
   rules:
   - host: {{ .Values.ingress.host }}
     http:
