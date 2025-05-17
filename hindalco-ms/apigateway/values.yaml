@@ -33,7 +33,7 @@ jwt_enable: true
 # Ingress Configuration
 ingress:
   enabled: true
-  host: "localhost"
+  host: "10.109.238.163"
   path: "/api"
   pathType: "Prefix"
   ingressType: "haproxy" # Changed from nginx to haproxy
