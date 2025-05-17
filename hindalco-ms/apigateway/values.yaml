@@ -33,8 +33,8 @@ jwt_enable: true
 # Ingress Configuration
 ingress:
   enabled: true
-  host: "10.109.238.163"
-  path: "/api"
+  host: "hilbgmstg.adityabirla.com"
+  path: ""
   pathType: "Prefix"
   ingressType: "haproxy" # Changed from nginx to haproxy
   annotations:
