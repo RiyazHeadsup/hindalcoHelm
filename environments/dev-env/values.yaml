@@ -11,7 +11,7 @@ global:
 apigateway:
   ingress:
     enabled: true
-    host: "hilbgmstg.adityabirla.com"
+    host: "10.109.238.163"
     path: "/"
     pathType: "Prefix"
     ingressType: "haproxy"
