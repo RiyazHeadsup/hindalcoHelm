@@ -11,7 +11,7 @@ global:
 apigateway:
   ingress:
     enabled: true
-    host: "10.109.238.163"
+    host: "hindalco-api.abgplanet.abg.com"  # Changed from localhost to DNS name
     path: "/"
     pathType: "Prefix"
     ingressType: "haproxy"
@@ -21,7 +21,7 @@ apigateway:
 discovery:
   ingress:
     enabled: true
-    host: "localhost"
+    host: "hindalco-eureka.abgplanet.abg.com"  # Changed from localhost to DNS name
     path: "/eureka"
     pathType: "Prefix"
     ingressType: "haproxy"
