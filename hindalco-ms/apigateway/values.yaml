@@ -33,10 +33,10 @@ jwt_enable: true
 # Ingress Configuration
 ingress:
   enabled: true
-  host: "hilbgmstg.adityabirla.com"
+  host: "hindalco-api.abgplanet.abg.com"  # Changed from localhost to your domain
   path: ""
   pathType: "Prefix"
-  ingressType: "haproxy" # Changed from nginx to haproxy
+  ingressType: "haproxy"
   annotations:
     kubernetes.io/ingress.class: "haproxy"
     ingress.kubernetes.io/ssl-redirect: "false"
