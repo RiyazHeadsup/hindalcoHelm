@@ -1,4 +1,3 @@
-{{- define "common.ingress" -}}
 # ingress.yaml
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -39,4 +38,3 @@ spec:
   #           name: apigateway
   #           port:
   #             number: 9001
-{{- end -}}
