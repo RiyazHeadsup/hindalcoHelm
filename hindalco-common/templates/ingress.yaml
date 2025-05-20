@@ -7,7 +7,7 @@ metadata:
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
-  ingressClassName: nginx  # Add this if using newer Kubernetes
+  ingressClassName: nginx
   rules:
   - host: api.sufix.com
     http:
@@ -26,7 +26,7 @@ spec:
   #       pathType: Prefix
   #       backend:
   #         service:
-  #           name: frontend-service
+  #           name: apigateway
   #           port:
   #             number: 80
   # - host: mqtt.sufix.com
@@ -36,6 +36,7 @@ spec:
   #       pathType: Prefix
   #       backend:
   #         service:
-  #           name: mosquitto-service
+  #           name: apigateway
   #           port:
   #             number: 9001
+{{- end -}}
