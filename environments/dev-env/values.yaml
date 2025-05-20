@@ -8,22 +8,22 @@ global:
   secret_jwt: abcd123abcd123
   exprire_jwt: 360000
 
-apigateway:
-  ingress:
-    enabled: true
-    host: "hindalco-api.abgplanet.abg.com"  # Changed from localhost to DNS name
-    path: "/"
-    pathType: "Prefix"
-    ingressType: "haproxy"
-    annotations:
-      kubernetes.io/ingress.class: "haproxy"
+# apigateway:
+#   ingress:
+#     enabled: true
+#     host: "hindalco-api.abgplanet.abg.com"  # Changed from localhost to DNS name
+#     path: "/"
+#     pathType: "Prefix"
+#     ingressType: "haproxy"
+#     annotations:
+#       kubernetes.io/ingress.class: "haproxy"
 
-discovery:
-  ingress:
-    enabled: true
-    host: "hindalco-eureka.abgplanet.abg.com"  # Changed from localhost to DNS name
-    path: "/eureka"
-    pathType: "Prefix"
-    ingressType: "haproxy"
-    annotations:
-      kubernetes.io/ingress.class: "haproxy"
+# discovery:
+#   ingress:
+#     enabled: true
+#     host: "hindalco-eureka.abgplanet.abg.com"  # Changed from localhost to DNS name
+#     path: "/eureka"
+#     pathType: "Prefix"
+#     ingressType: "haproxy"
+#     annotations:
+#       kubernetes.io/ingress.class: "haproxy"

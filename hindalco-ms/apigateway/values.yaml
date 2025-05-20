@@ -30,14 +30,14 @@ discovery_enable: true
 mongo_host_enable: true
 jwt_enable: true
 
-# Ingress Configuration
-ingress:
-  enabled: true
-  host: "hindalco-api.abgplanet.abg.com"  # Changed from localhost to your domain
-  path: ""
-  pathType: "Prefix"
-  ingressType: "haproxy"
-  annotations:
-    kubernetes.io/ingress.class: "haproxy"
-    ingress.kubernetes.io/ssl-redirect: "false"
-    ingress.kubernetes.io/rewrite-target: "/"
+# # Ingress Configuration
+# ingress:
+#   enabled: true
+#   host: "hindalco-api.abgplanet.abg.com"  # Changed from localhost to your domain
+#   path: ""
+#   pathType: "Prefix"
+#   ingressType: "haproxy"
+#   annotations:
+#     kubernetes.io/ingress.class: "haproxy"
+#     ingress.kubernetes.io/ssl-redirect: "false"
+#     ingress.kubernetes.io/rewrite-target: "/"
