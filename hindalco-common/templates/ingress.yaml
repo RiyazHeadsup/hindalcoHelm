@@ -25,9 +25,9 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: apigateway
+            name: hindalcofe
             port:
-              number: 9090
+              number: 3000
   - host: mqtt.hindalcotest.com
     http:
       paths:
