@@ -33,15 +33,15 @@ resouceserver_enabled: false
 otel_enabled: false
 kafka_enabled: false
 
-ingress:
-  enabled: true
-  host: "localhost"
-  path: "/eureka"
-  pathType: "Prefix"
-  ingressType: "haproxy"
-  annotations:
-    kubernetes.io/ingress.class: "haproxy"
-    haproxy.org/ssl-redirect: "false"
-    haproxy.org/config-backend: |
-      balance roundrobin
-      option httpchk HEAD /eureka/actuator/health
+# ingress:
+#   enabled: true
+#   host: "localhost"
+#   path: "/eureka"
+#   pathType: "Prefix"
+#   ingressType: "haproxy"
+#   annotations:
+#     kubernetes.io/ingress.class: "haproxy"
+#     haproxy.org/ssl-redirect: "false"
+#     haproxy.org/config-backend: |
+#       balance roundrobin
+#       option httpchk HEAD /eureka/actuator/health
