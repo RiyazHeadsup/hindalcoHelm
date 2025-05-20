@@ -2,11 +2,11 @@ global:
   configMapName: hindalcodev-configmap
   activeProfile: default
   discovery: http://discovery:8761/eureka/
-  MONGODB_HOST: 10.36.29.122
-  MONGODB_PORT: 27017
-  MONGODB_DATABASE: hindalco
-  JWT_SECRET: abcd123abcd123
-  JWT_EXPIRATION: 360000
+  mongodb_host: 10.36.29.122
+  mongodb_port: 27017
+  mongodb_database: hindalco
+  secret_jwt: abcd123abcd123
+  exprire_jwt: 360000
 
 # apigateway:
 #   ingress:
