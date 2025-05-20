@@ -1,12 +1,12 @@
+# ingress.yaml
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: services-ingress
   annotations:
-    kubernetes.io/ingress.class: "haproxy"
-    # HAProxy specific annotations
-    haproxy.org/ssl-redirect: "false"  # Enable if you want SSL redirect
+    nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
+  ingressClassName: nginx  # Add this if using newer Kubernetes
   rules:
   - host: api.sufix.com
     http:
@@ -18,25 +18,23 @@ spec:
             name: apigateway
             port:
               number: 9090
-              
-  - host: sufix.com
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: frontend-service
-            port:
-              number: 80
-              
-  - host: mqtt.sufix.com
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: mosquitto-service
-            port:
-              number: 9001  # WebSocket port for MQTT web clients
+  # - host: sufix.com
+  #   http:
+  #     paths:
+  #     - path: /
+  #       pathType: Prefix
+  #       backend:
+  #         service:
+  #           name: frontend-service
+  #           port:
+  #             number: 80
+  # - host: mqtt.sufix.com
+  #   http:
+  #     paths:
+  #     - path: /
+  #       pathType: Prefix
+  #       backend:
+  #         service:
+  #           name: mosquitto-service
+  #           port:
+  #             number: 9001
