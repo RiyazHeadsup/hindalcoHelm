@@ -1,173 +1,33 @@
-
----
-# Namespace for HAProxy Ingress Controller
+# nginx-ingress-deployment.yaml
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: haproxy-controller
+  name: ingress-nginx
 
 ---
-# Service Account
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: haproxy-ingress-serviceaccount
-  namespace: haproxy-controller
-
----
-# ClusterRole
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
-metadata:
-  name: haproxy-ingress-clusterrole
-rules:
-- apiGroups: [""]
-  resources: ["configmaps", "endpoints", "nodes", "pods", "secrets"]
-  verbs: ["list", "watch"]
-- apiGroups: [""]
-  resources: ["nodes"]
-  verbs: ["get"]
-- apiGroups: [""]
-  resources: ["services"]
-  verbs: ["get", "list", "watch"]
-- apiGroups: ["networking.k8s.io"]
-  resources: ["ingresses"]
-  verbs: ["get", "list", "watch"]
-- apiGroups: [""]
-  resources: ["events"]
-  verbs: ["create", "patch"]
-- apiGroups: ["networking.k8s.io"]
-  resources: ["ingresses/status"]
-  verbs: ["update"]
-- apiGroups: ["networking.k8s.io"]
-  resources: ["ingressclasses"]
-  verbs: ["get", "list", "watch"]
-
----
-# ClusterRoleBinding
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: haproxy-ingress-clusterrolebinding
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: haproxy-ingress-clusterrole
-subjects:
-- kind: ServiceAccount
-  name: haproxy-ingress-serviceaccount
-  namespace: haproxy-controller
-
----
-# Role
-apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
-metadata:
-  name: haproxy-ingress-role
-  namespace: haproxy-controller
-rules:
-- apiGroups: [""]
-  resources: ["configmaps", "pods", "secrets", "endpoints"]
-  verbs: ["get", "list", "watch"]
-- apiGroups: [""]
-  resources: ["configmaps"]
-  verbs: ["get", "update"]
-- apiGroups: [""]
-  resources: ["configmaps"]
-  verbs: ["create"]
-- apiGroups: [""]
-  resources: ["endpoints"]
-  verbs: ["get"]
-
----
-# RoleBinding
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-metadata:
-  name: haproxy-ingress-role-nisa-binding
-  namespace: haproxy-controller
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: Role
-  name: haproxy-ingress-role
-subjects:
-- kind: ServiceAccount
-  name: haproxy-ingress-serviceaccount
-  namespace: haproxy-controller
-
----
-# IngressClass
-apiVersion: networking.k8s.io/v1
-kind: IngressClass
-metadata:
-  name: haproxy
-spec:
-  controller: haproxy-ingress.github.io/controller
-
----
-# ConfigMap for HAProxy Configuration
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: haproxy-configmap
-  namespace: haproxy-controller
-data:
-  ssl-redirect: "false"  # Change to "true" if you want automatic SSL redirect
-  timeout-client: "30s"
-  timeout-server: "30s"
-  timeout-tunnel: "3600s"  # For WebSocket connections like MQTT
-
----
-# Deployment
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  labels:
-    run: haproxy-ingress
-  name: haproxy-ingress
-  namespace: haproxy-controller
+  name: nginx-controller
+  namespace: ingress-nginx
 spec:
-  replicas: 2  # Adjust based on your needs
+  replicas: 2
   selector:
     matchLabels:
-      run: haproxy-ingress
+      app: nginx-controller
   template:
     metadata:
       labels:
-        run: haproxy-ingress
+        app: nginx-controller
     spec:
-      serviceAccountName: haproxy-ingress-serviceaccount
       containers:
-      - name: haproxy-ingress
-        image: haproxytech/kubernetes-ingress:latest
+      - name: controller
+        image: registry.k8s.io/ingress-nginx/controller:v1.8.4
         args:
-        - --configmap=haproxy-controller/haproxy-configmap
-        - --ingress-class=haproxy
-        - --publish-service=haproxy-controller/haproxy-ingress
-        - --log=info
-        resources:
-          requests:
-            cpu: 500m
-            memory: 50Mi
-          limits:
-            cpu: 1000m
-            memory: 100Mi
-        livenessProbe:
-          httpGet:
-            path: /healthz
-            port: 1042
-        ports:
-        - name: http
-          containerPort: 80
-        - name: https
-          containerPort: 443
-        - name: stat
-          containerPort: 1024
-        - name: mqtt
-          containerPort: 1883  # For MQTT TCP traffic
+        - /nginx-ingress-controller
+        - --ingress-class=nginx
+        - --configmap=$(POD_NAMESPACE)/nginx-configuration
         env:
-        - name: TZ
-          value: "Etc/UTC"
         - name: POD_NAME
           valueFrom:
             fieldRef:
@@ -176,34 +36,30 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
+        ports:
+        - name: http
+          containerPort: 80
+        - name: https
+          containerPort: 443
+        resources:
+          requests:
+            cpu: 100m
+            memory: 90Mi
 
 ---
-# Service for HAProxy Ingress Controller
 apiVersion: v1
 kind: Service
 metadata:
-  labels:
-    run: haproxy-ingress
-  name: haproxy-ingress
-  namespace: haproxy-controller
+  name: nginx-controller
+  namespace: ingress-nginx
 spec:
+  type: LoadBalancer
   selector:
-    run: haproxy-ingress
-  type: LoadBalancer  # Change to NodePort if LoadBalancer is not available
+    app: nginx-controller
   ports:
   - name: http
     port: 80
-    protocol: TCP
     targetPort: 80
   - name: https
     port: 443
-    protocol: TCP
     targetPort: 443
-  - name: stat
-    port: 1024
-    protocol: TCP
-    targetPort: 1024
-  - name: mqtt
-    port: 1883
-    protocol: TCP
-    targetPort: 1883
