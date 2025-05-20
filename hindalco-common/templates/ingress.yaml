@@ -25,7 +25,7 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: hindalcofe
+            name: frontend-service
             port:
               number: 3000
   - host: mqtt.hindalcotest.com
