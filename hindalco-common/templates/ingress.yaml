@@ -35,6 +35,6 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: apigateway
+            name: broker-mosquitto
             port:
-              number: 9090
+              number: 1883
