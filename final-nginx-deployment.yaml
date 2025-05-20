@@ -1,5 +1,7 @@
 ---
-# Final NGINX Ingress Controller Deployment with all patches applied
+# Final NGINX Ingress Controller DaemonSet Deployment - Production Ready
+# Deploys on all worker nodes with host networking for high availability
+
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -23,6 +25,8 @@ data:
   proxy-send-timeout: "3600"
   proxy-body-size: "50m"
   client-max-body-size: "50m"
+  use-forwarded-headers: "true"
+  proxy-real-ip-cidr: "0.0.0.0/0"
 
 ---
 # ConfigMap for TCP Services (for MQTT)
@@ -170,7 +174,7 @@ spec:
   controller: k8s.io/ingress-nginx
 
 ---
-# DaemonSet - Deploys NGINX on every worker node
+# DaemonSet - Deploys NGINX on every worker node for high availability
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
@@ -195,16 +199,9 @@ spec:
       # Host network for direct access on port 80/443
       hostNetwork: true
       dnsPolicy: ClusterFirstWithHostNet
-      # Only deploy on worker nodes (not master nodes)
+      # Deploy only on worker nodes
       nodeSelector:
-        node-role.kubernetes.io/control-plane: ""
-      tolerations:
-      - key: node-role.kubernetes.io/control-plane
-        operator: Equal
-        effect: NoSchedule
-      - key: node-role.kubernetes.io/master
-        operator: Equal
-        effect: NoSchedule
+        node-role.kubernetes.io/worker: "worker"
       containers:
       - name: nginx-ingress-controller
         image: k8s.gcr.io/ingress-nginx/controller:v1.1.3
@@ -284,7 +281,7 @@ spec:
             memory: 512Mi
 
 ---
-# Service for NGINX Ingress Controller
+# Service for NGINX Ingress Controller (for internal communication)
 apiVersion: v1
 kind: Service
 metadata:
@@ -294,7 +291,7 @@ metadata:
     app.kubernetes.io/name: ingress-nginx
     app.kubernetes.io/part-of: ingress-nginx
 spec:
-  type: NodePort
+  type: ClusterIP
   selector:
     app.kubernetes.io/name: ingress-nginx
     app.kubernetes.io/part-of: ingress-nginx
