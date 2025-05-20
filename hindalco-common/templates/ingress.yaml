@@ -1,30 +1,42 @@
-{{- define "common.ingress" -}}
-{{- if .Values.ingress.enabled }}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ .Values.deploymentName }}-ingress
-  labels:
-    app: {{ .Values.appLabel }}
+  name: services-ingress
   annotations:
-    kubernetes.io/ingress.class: haproxy
-    ingress.kubernetes.io/ssl-redirect: "false"
-    ingress.kubernetes.io/rewrite-target: "/"
-    {{- with .Values.ingress.annotations }}
-    {{- toYaml . | nindent 4 }}
-    {{- end }}
+    kubernetes.io/ingress.class: "haproxy"
+    # HAProxy specific annotations
+    haproxy.org/ssl-redirect: "false"  # Enable if you want SSL redirect
 spec:
-  ingressClassName: {{ .Values.ingress.ingressType }}
   rules:
-  - host: {{ .Values.ingress.host }}
+  - host: api.sufix.com
     http:
       paths:
-      - path: {{ .Values.ingress.path }}
-        pathType: {{ .Values.ingress.pathType }}
+      - path: /
+        pathType: Prefix
         backend:
           service:
-            name: {{ .Values.serviceName }}
+            name: apigateway
             port:
-              number: {{ .Values.service.port }}
-{{- end }}
-{{- end -}}
+              number: 9090
+              
+  - host: sufix.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: frontend-service
+            port:
+              number: 80
+              
+  - host: mqtt.sufix.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: mosquitto-service
+            port:
+              number: 9001  # WebSocket port for MQTT web clients
