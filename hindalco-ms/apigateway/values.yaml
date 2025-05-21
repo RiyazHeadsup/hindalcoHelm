@@ -11,8 +11,8 @@ image:
 
 # Temporary fix for buildpack launcher issue
 containerOverride:
-  command: ["/cnb/lifecycle/launcher"]
-  args: ["java", "org.springframework.boot.loader.JarLauncher"]
+  command: ["/bin/sh"]
+  args: ["-c", "find /cnb -name launcher -executable 2>/dev/null | head -1 | xargs -I {} {} java -jar $(find /workspace /layers -name '*.jar' 2>/dev/null | head -1)"]
 
 containerPort: 9090
 
