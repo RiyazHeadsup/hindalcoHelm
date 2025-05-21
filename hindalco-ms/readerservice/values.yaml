@@ -1,9 +1,9 @@
-deploymentName: reader
-serviceName: reader
-appLabel: reader
-appName: reader
-nameOverride: "reader"
-fullnameOverride: "reader"
+deploymentName: device
+serviceName: device
+appLabel: device
+appName: device
+nameOverride: "device"
+fullnameOverride: "device"
 
 replicaCount: 1
 
