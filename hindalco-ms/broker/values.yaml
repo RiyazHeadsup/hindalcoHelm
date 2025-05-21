@@ -12,12 +12,12 @@ image:
   repository: hcorptech/broker
   tag: 0.0.1
 
-containerPort: 8086
+containerPort: 8085
 
 service:
   type: ClusterIP
-  port: 8086
-  targetPort: 8086
+  port: 8085
+  targetPort: 8085
 
 resources:
   requests:
