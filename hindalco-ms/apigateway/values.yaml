@@ -9,6 +9,11 @@ image:
   tag: 0.0.1
   pullPolicy: Always
 
+# Temporary fix for buildpack launcher issue
+containerOverride:
+  command: ["/cnb/lifecycle/launcher"]
+  args: ["java", "org.springframework.boot.loader.JarLauncher"]
+
 containerPort: 9090
 
 service:
@@ -18,10 +23,10 @@ service:
 
 resources:
   requests:
-    cpu: "2000m"
-    memory: "2Gi"
+    cpu: "500m"
+    memory: "512Mi"
   limits:
-    cpu: "2000m"
+    cpu: "1000m"
     memory: "2Gi"
 
 # Feature flags
