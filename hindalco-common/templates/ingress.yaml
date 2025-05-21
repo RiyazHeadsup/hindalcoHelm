@@ -1,19 +1,30 @@
-# ingress.yaml
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: services-ingress
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
-    # CORS Configuration - Add these annotations
+    # CORS Configuration
     nginx.ingress.kubernetes.io/enable-cors: "true"
     nginx.ingress.kubernetes.io/cors-allow-origin: "https://hindalcotest.com,http://hindalcotest.com,http://localhost:3000,http://localhost:3001"
     nginx.ingress.kubernetes.io/cors-allow-methods: "GET, PUT, POST, DELETE, PATCH, OPTIONS"
     nginx.ingress.kubernetes.io/cors-allow-headers: "DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Authorization,X-Forwarded-For"
     nginx.ingress.kubernetes.io/cors-allow-credentials: "true"
     nginx.ingress.kubernetes.io/cors-max-age: "86400"
+    # SSL Configuration
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/ssl-protocols: "TLSv1.2 TLSv1.3"
+    nginx.ingress.kubernetes.io/ssl-ciphers: "ECDHE-RSA-AES128-GCM-SHA256,ECDHE-RSA-AES256-GCM-SHA384,ECDHE-RSA-AES128-SHA256,ECDHE-RSA-AES256-SHA384"
 spec:
   ingressClassName: nginx
+  # TLS Configuration
+  tls:
+  - hosts:
+    - hilbgmstgapi.adityabirla.com
+    - hilbgmstg.adityabirla.com
+    - hilbgmstgmqtt.adityabirla.com
+    secretName: adityabirla-ssl-secret  # Your SSL secret name
   rules:
   - host: hilbgmstgapi.adityabirla.com
     http:
