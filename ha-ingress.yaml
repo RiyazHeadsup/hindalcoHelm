@@ -1,0 +1,22 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: mqtt-ingress
+  namespace: haproxy-controller
+  annotations:
+    haproxy.org/server-ssl: "false"
+    haproxy.org/tcp-ports: "1883"
+    haproxy.org/timeout-tunnel: "3600s"
+spec:
+  ingressClassName: haproxy
+  rules:
+  - host: hilbgmstgmqtt.adityabirla.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: broker-mosquitto
+            port:
+              number: 1883
