@@ -46,13 +46,13 @@ spec:
             name: frontend-service
             port:
               number: 3000
-  # - host: hilbgmstgmqtt.adityabirla.com
-  #   http:
-  #     paths:
-  #     - path: /
-  #       pathType: Prefix
-  #       backend:
-  #         service:
-  #           name: broker-mosquitto
-  #           port:
-  #             number: 1883
+  - host: hilbgmstgmqtt.adityabirla.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: broker-mosquitto
+            port:
+              number: 1883
