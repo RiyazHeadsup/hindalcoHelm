@@ -4,7 +4,7 @@ metadata:
   name: services-ingress
   namespace: default
   annotations:
-    haproxy.org/path-rewrite: "/"
+    #haproxy.org/path-rewrite: "/"
     haproxy.org/cors-enable: "true"
     haproxy.org/cors-allow-origin: "https://hilbgmstg.adityabirla.com,http://hilbgmstg.adityabirla.com"
     haproxy.org/cors-allow-methods: "GET, PUT, POST, DELETE, PATCH, OPTIONS"
@@ -18,7 +18,7 @@ metadata:
     haproxy.org/load-balance: "roundrobin"
     haproxy.org/check-http: "/"
     haproxy.org/forwarded-for: "enabled"
-    haproxy.org/path-rewrite: "/"
+    
 
 spec:
   ingressClassName: haproxy-ingress-class
