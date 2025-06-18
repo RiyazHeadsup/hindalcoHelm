@@ -18,6 +18,8 @@ metadata:
     haproxy.org/load-balance: "roundrobin"
     haproxy.org/check-http: "/"
     haproxy.org/forwarded-for: "enabled"
+    haproxy.org/path-rewrite: "/"
+
 spec:
   ingressClassName: haproxy-ingress-class
   tls:
