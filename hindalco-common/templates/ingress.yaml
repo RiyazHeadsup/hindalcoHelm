@@ -4,19 +4,14 @@ metadata:
   name: services-ingress
   namespace: default
   annotations:
-    # Path rewrite
     haproxy.org/path-rewrite: "/"
-    # CORS Configuration
     haproxy.org/cors-enable: "true"
     haproxy.org/cors-allow-origin: "https://hilbgmstg.adityabirla.com,http://hilbgmstg.adityabirla.com"
     haproxy.org/cors-allow-methods: "GET, PUT, POST, DELETE, PATCH, OPTIONS"
     haproxy.org/cors-allow-headers: "DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Authorization,X-Forwarded-For"
     haproxy.org/cors-allow-credentials: "true"
     haproxy.org/cors-max-age: "86400"
-    # SSL Configuration
-    haproxy.org/ssl-redirect: "true"  # SSL redirect should be true if TLS is working
-    #haproxy.org/ssl-certificate: "adityabirla-ssl-secret"
-    # HAProxy optimizations
+    haproxy.org/ssl-redirect: "true"
     haproxy.org/timeout-connect: "5s"
     haproxy.org/timeout-client: "50s"
     haproxy.org/timeout-server: "50s"
@@ -29,7 +24,6 @@ spec:
     - hosts:
         - hilbgmstgapi.adityabirla.com
         - hilbgmstg.adityabirla.com
-        - hilbgmstgmqtt.adityabirla.com
       secretName: adityabirla-ssl-secret
   rules:
     - host: hilbgmstgapi.adityabirla.com
@@ -52,18 +46,8 @@ spec:
                 name: frontend-service
                 port:
                   number: 3000
-    - host: hilbgmstgmqtt.adityabirla.com
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: broker-mosquitto
-                port:
-                  number: 1883
 ---
-# MQTT TCP Mapping for port 1883
+# MQTT TCP Mapping for port 1883 (this is used by HAProxy Ingress controller separately)
 apiVersion: v1
 kind: ConfigMap
 metadata:
