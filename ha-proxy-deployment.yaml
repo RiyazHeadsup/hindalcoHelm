@@ -40,16 +40,16 @@ metadata:
   labels:
     app.kubernetes.io/name: haproxy-ingress-controller
 rules:
-  - apiGroups: [""] 
+  - apiGroups: [""]
     resources: ["configmaps", "endpoints", "nodes", "pods", "secrets", "services"]
     verbs: ["get", "list", "watch"]
   - apiGroups: ["extensions", "networking.k8s.io"]
     resources: ["ingresses", "ingressclasses"]
     verbs: ["get", "list", "watch"]
-  - apiGroups: [""] 
+  - apiGroups: [""]
     resources: ["events"]
     verbs: ["create", "patch"]
-  - apiGroups: [""] 
+  - apiGroups: [""]
     resources: ["namespaces"]
     verbs: ["get"]
 
@@ -107,9 +107,9 @@ spec:
       nodeSelector:
         node-role.kubernetes.io/worker: "worker"
       tolerations:
-      - key: node-role.kubernetes.io/master
-        operator: Equal
-        effect: NoSchedule
+        - key: node-role.kubernetes.io/master
+          operator: Equal
+          effect: NoSchedule
       containers:
       - name: haproxy-ingress-controller
         image: haproxytech/kubernetes-ingress:1.10
@@ -131,9 +131,9 @@ spec:
           allowPrivilegeEscalation: true
           capabilities:
             drop:
-            - ALL
+              - ALL
             add:
-            - NET_BIND_SERVICE
+              - NET_BIND_SERVICE
         env:
         - name: TZ
           value: "Etc/UTC"
@@ -230,7 +230,8 @@ metadata:
   namespace: haproxy-ingress-system
 spec:
   ports:
-  - port: 80
+  - name: http   # FIX: added named port
+    port: 80
     targetPort: 8080
   selector:
     app.kubernetes.io/name: haproxy-ingress-default-backend
