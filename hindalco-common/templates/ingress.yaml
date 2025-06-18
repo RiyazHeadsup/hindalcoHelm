@@ -73,3 +73,8 @@ metadata:
   namespace: haproxy-ingress-system
 data:
   "1883": "default/broker-mosquitto:1883"
+
+status:
+    loadBalancer:
+      ingress:
+      - ip: 10.111.100.38
