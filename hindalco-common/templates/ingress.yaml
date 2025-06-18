@@ -15,7 +15,7 @@ metadata:
     haproxy.org/timeout-client: "50s"
     haproxy.org/timeout-server: "50s"
     haproxy.org/load-balance: "roundrobin"
-    haproxy.org/check-http: "/"
+    haproxy.org/check-http: "/health"
     haproxy.org/forwarded-for: "enabled"
 spec:
   ingressClassName: haproxy
