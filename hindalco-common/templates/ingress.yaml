@@ -15,7 +15,7 @@ metadata:
     haproxy.org/cors-max-age: "86400"
     # SSL Configuration
     haproxy.org/ssl-redirect: "true"  # SSL redirect should be true if TLS is working
-    haproxy.org/ssl-certificate: "adityabirla-ssl-secret"
+    #haproxy.org/ssl-certificate: "adityabirla-ssl-secret"
     # HAProxy optimizations
     haproxy.org/timeout-connect: "5s"
     haproxy.org/timeout-client: "50s"
