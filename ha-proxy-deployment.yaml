@@ -1,17 +1,12 @@
 ---
-# Final HAProxy Ingress Controller DaemonSet Deployment - Production Ready
-# Deploys on all worker nodes with host networking for high availability
-
 apiVersion: v1
 kind: Namespace
 metadata:
   name: haproxy-ingress-system
   labels:
     app.kubernetes.io/name: haproxy-ingress-controller
-    app.kubernetes.io/instance: haproxy-ingress-controller
 
 ---
-# ConfigMap for HAProxy Configuration
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -19,7 +14,6 @@ metadata:
   namespace: haproxy-ingress-system
   labels:
     app.kubernetes.io/name: haproxy-ingress-controller
-    app.kubernetes.io/part-of: haproxy-ingress-controller
 data:
   timeout-connect: "5s"
   timeout-client: "50s"
@@ -28,7 +22,6 @@ data:
   timeout-http-request: "5s"
 
 ---
-# ConfigMap for TCP Services
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -36,12 +29,10 @@ metadata:
   namespace: haproxy-ingress-system
   labels:
     app.kubernetes.io/name: haproxy-ingress-controller
-    app.kubernetes.io/part-of: haproxy-ingress-controller
 data:
   "1883": "mqtt/mosquitto:1883"
 
 ---
-# ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
@@ -63,7 +54,6 @@ rules:
     verbs: ["get"]
 
 ---
-# ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
@@ -80,7 +70,6 @@ roleRef:
   apiGroup: rbac.authorization.k8s.io
 
 ---
-# ServiceAccount
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -90,7 +79,6 @@ metadata:
     app.kubernetes.io/name: haproxy-ingress-controller
 
 ---
-# DaemonSet
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
@@ -135,6 +123,7 @@ spec:
         - --log=info
         - --controller-class=haproxy.org/ingress-controller
         - --healthz-port=1042
+        - --runtime-api=/var/run/haproxy-runtime-api.sock
         securityContext:
           runAsUser: 0
           runAsGroup: 0
@@ -197,7 +186,6 @@ spec:
         emptyDir: {}
 
 ---
-# Default Backend Deployment
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -222,19 +210,18 @@ spec:
         - containerPort: 8080
         livenessProbe:
           httpGet:
-            path: /
+            path: /healthz
             port: 8080
           initialDelaySeconds: 30
           timeoutSeconds: 5
         readinessProbe:
           httpGet:
-            path: /
+            path: /healthz
             port: 8080
           initialDelaySeconds: 5
           timeoutSeconds: 3
 
 ---
-# Service for Default Backend
 apiVersion: v1
 kind: Service
 metadata:
@@ -248,7 +235,6 @@ spec:
     app.kubernetes.io/name: haproxy-ingress-default-backend
 
 ---
-# Service for HAProxy Ingress Controller
 apiVersion: v1
 kind: Service
 metadata:
@@ -267,7 +253,6 @@ spec:
     app.kubernetes.io/name: haproxy-ingress-controller
 
 ---
-# Service for Stats and Metrics
 apiVersion: v1
 kind: Service
 metadata:
