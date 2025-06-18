@@ -26,28 +26,61 @@ data:
   timeout-server: "50s"
   timeout-tunnel: "1h"
   timeout-http-request: "5s"
-  timeout-http-keep-alive: "1m"
-  max-connections: "2000"
-  ssl-redirect: "true"
-  cookie-key: "Ingress"
-  dynamic-scaling: "true"
-  backend-check-interval: "2s"
-  forwardfor: "add"
-  hsts: "true"
-  hsts-max-age: "15768000"
 
 ---
-# ConfigMap for TCP Services (for MQTT)
+# ConfigMap for TCP Services
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: haproxy-tcp-services-configmap
   namespace: haproxy-ingress-system
+  labels:
+    app.kubernetes.io/name: haproxy-ingress-controller
+    app.kubernetes.io/part-of: haproxy-ingress-controller
 data:
-  "1883": "default/mosquitto-service:1883"
+  "1883": "mqtt/mosquitto:1883"
 
 ---
-# Service Account
+# ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: haproxy-ingress-clusterrole
+  labels:
+    app.kubernetes.io/name: haproxy-ingress-controller
+rules:
+  - apiGroups: [""]
+    resources: ["configmaps", "endpoints", "nodes", "pods", "secrets", "services"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["extensions", "networking.k8s.io"]
+    resources: ["ingresses", "ingressclasses"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["events"]
+    verbs: ["create", "patch"]
+  - apiGroups: [""]
+    resources: ["namespaces"]
+    verbs: ["get"]
+
+---
+# ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: haproxy-ingress-clusterrolebinding
+  labels:
+    app.kubernetes.io/name: haproxy-ingress-controller
+subjects:
+  - kind: ServiceAccount
+    name: haproxy-ingress-controller-sa
+    namespace: haproxy-ingress-system
+roleRef:
+  kind: ClusterRole
+  name: haproxy-ingress-clusterrole
+  apiGroup: rbac.authorization.k8s.io
+
+---
+# ServiceAccount
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -55,124 +88,9 @@ metadata:
   namespace: haproxy-ingress-system
   labels:
     app.kubernetes.io/name: haproxy-ingress-controller
-    app.kubernetes.io/part-of: haproxy-ingress-controller
 
 ---
-# ClusterRole with all required permissions
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
-metadata:
-  name: haproxy-ingress-controller-clusterrole
-  labels:
-    app.kubernetes.io/name: haproxy-ingress-controller
-    app.kubernetes.io/part-of: haproxy-ingress-controller
-rules:
-- apiGroups: [""]
-  resources: ["configmaps", "endpoints", "nodes", "pods", "secrets", "namespaces", "services"]
-  verbs: ["get", "list", "watch"]
-- apiGroups: [""]
-  resources: ["events"]
-  verbs: ["create", "patch"]
-- apiGroups: ["coordination.k8s.io"]
-  resources: ["leases"]
-  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
-- apiGroups: ["networking.k8s.io"]
-  resources: ["ingresses", "ingressclasses"]
-  verbs: ["get", "list", "watch"]
-- apiGroups: ["networking.k8s.io"]
-  resources: ["ingresses/status"]
-  verbs: ["update"]
-- apiGroups: ["discovery.k8s.io"]
-  resources: ["endpointslices"]
-  verbs: ["list", "watch", "get"]
-# Gateway API and CRD permissions
-- apiGroups: ["apiextensions.k8s.io"]
-  resources: ["customresourcedefinitions"]
-  verbs: ["get", "list", "watch"]
-- apiGroups: ["gateway.networking.k8s.io"]
-  resources: ["gateways", "gatewayClasses", "httproutes", "tcproutes", "tlsroutes"]
-  verbs: ["get", "list", "watch"]
-- apiGroups: ["gateway.networking.k8s.io"]
-  resources: ["gateways/status", "httproutes/status", "tcproutes/status", "tlsroutes/status"]
-  verbs: ["update"]
-
----
-# Role for namespace-specific permissions
-apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
-metadata:
-  name: haproxy-ingress-controller-role
-  namespace: haproxy-ingress-system
-  labels:
-    app.kubernetes.io/name: haproxy-ingress-controller
-    app.kubernetes.io/part-of: haproxy-ingress-controller
-rules:
-- apiGroups: [""]
-  resources: ["configmaps", "pods", "secrets", "endpoints"]
-  verbs: ["get", "list", "watch"]
-- apiGroups: [""]
-  resources: ["configmaps"]
-  verbs: ["get", "update", "create"]
-- apiGroups: [""]
-  resources: ["events"]
-  verbs: ["create", "patch"]
-- apiGroups: ["coordination.k8s.io"]
-  resources: ["leases"]
-  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
-
----
-# RoleBinding
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-metadata:
-  name: haproxy-ingress-controller-rolebinding
-  namespace: haproxy-ingress-system
-  labels:
-    app.kubernetes.io/name: haproxy-ingress-controller
-    app.kubernetes.io/part-of: haproxy-ingress-controller
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: Role
-  name: haproxy-ingress-controller-role
-subjects:
-- kind: ServiceAccount
-  name: haproxy-ingress-controller-sa
-  namespace: haproxy-ingress-system
-
----
-# ClusterRoleBinding
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: haproxy-ingress-controller-clusterrolebinding
-  labels:
-    app.kubernetes.io/name: haproxy-ingress-controller
-    app.kubernetes.io/part-of: haproxy-ingress-controller
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: haproxy-ingress-controller-clusterrole
-subjects:
-- kind: ServiceAccount
-  name: haproxy-ingress-controller-sa
-  namespace: haproxy-ingress-system
-
----
-# IngressClass
-apiVersion: networking.k8s.io/v1
-kind: IngressClass
-metadata:
-  name: haproxy-ingress-class
-  labels:
-    app.kubernetes.io/name: haproxy-ingress-controller
-    app.kubernetes.io/part-of: haproxy-ingress-controller
-  annotations:
-    ingressclass.kubernetes.io/is-default-class: "true"
-spec:
-  controller: haproxy.org/ingress-controller
-
----
-# DaemonSet - Deploys HAProxy on every worker node for high availability
+# DaemonSet
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
@@ -196,10 +114,8 @@ spec:
     spec:
       serviceAccountName: haproxy-ingress-controller-sa
       terminationGracePeriodSeconds: 60
-      # Host network for direct access on port 80/443
       hostNetwork: true
       dnsPolicy: ClusterFirstWithHostNet
-      # Deploy only on worker nodes
       nodeSelector:
         node-role.kubernetes.io/worker: "worker"
       tolerations:
@@ -220,9 +136,9 @@ spec:
         - --controller-class=haproxy.org/ingress-controller
         - --healthz-port=1042
         securityContext:
-          runAsNonRoot: true
-          runAsUser: 1000
-          runAsGroup: 1000
+          runAsUser: 0
+          runAsGroup: 0
+          allowPrivilegeEscalation: true
           capabilities:
             drop:
             - ALL
@@ -281,35 +197,14 @@ spec:
         emptyDir: {}
 
 ---
-# Default Backend Service
-apiVersion: v1
-kind: Service
-metadata:
-  name: haproxy-ingress-default-backend-svc
-  namespace: haproxy-ingress-system
-  labels:
-    app.kubernetes.io/name: haproxy-ingress-default-backend
-    app.kubernetes.io/part-of: haproxy-ingress-controller
-spec:
-  type: ClusterIP
-  selector:
-    app.kubernetes.io/name: haproxy-ingress-default-backend
-  ports:
-  - name: http
-    port: 8080
-    protocol: TCP
-    targetPort: 8080
-
----
 # Default Backend Deployment
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: haproxy-ingress-default-backend-deployment
+  name: haproxy-ingress-default-backend
   namespace: haproxy-ingress-system
   labels:
     app.kubernetes.io/name: haproxy-ingress-default-backend
-    app.kubernetes.io/part-of: haproxy-ingress-controller
 spec:
   replicas: 1
   selector:
@@ -321,70 +216,68 @@ spec:
         app.kubernetes.io/name: haproxy-ingress-default-backend
     spec:
       containers:
-      - name: default-backend-container
-        image: gcr.io/google_containers/defaultbackend:1.4
+      - name: default-backend
+        image: registry.k8s.io/defaultbackend-amd64:1.5
         ports:
         - containerPort: 8080
-        resources:
-          requests:
-            cpu: 10m
-            memory: 20Mi
-          limits:
-            cpu: 50m
-            memory: 50Mi
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8080
+          initialDelaySeconds: 30
+          timeoutSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8080
+          initialDelaySeconds: 5
+          timeoutSeconds: 3
 
 ---
-# Service for HAProxy Ingress Controller (for internal communication)
+# Service for Default Backend
+apiVersion: v1
+kind: Service
+metadata:
+  name: haproxy-ingress-default-backend-svc
+  namespace: haproxy-ingress-system
+spec:
+  ports:
+  - port: 80
+    targetPort: 8080
+  selector:
+    app.kubernetes.io/name: haproxy-ingress-default-backend
+
+---
+# Service for HAProxy Ingress Controller
 apiVersion: v1
 kind: Service
 metadata:
   name: haproxy-ingress-controller-svc
   namespace: haproxy-ingress-system
-  labels:
-    app.kubernetes.io/name: haproxy-ingress-controller
-    app.kubernetes.io/part-of: haproxy-ingress-controller
 spec:
   type: ClusterIP
-  selector:
-    app.kubernetes.io/name: haproxy-ingress-controller
-    app.kubernetes.io/part-of: haproxy-ingress-controller
   ports:
   - name: http
     port: 80
-    protocol: TCP
-    targetPort: 80
-    appProtocol: http
+    targetPort: http
   - name: https
     port: 443
-    protocol: TCP
-    targetPort: 443
-    appProtocol: https
-  - name: mqtt
-    port: 1883
-    protocol: TCP
-    targetPort: 1883
+    targetPort: https
+  selector:
+    app.kubernetes.io/name: haproxy-ingress-controller
 
 ---
-# Service for HAProxy Stats/Metrics
+# Service for Stats and Metrics
 apiVersion: v1
 kind: Service
 metadata:
-  name: haproxy-ingress-stats-svc
+  name: haproxy-stats-svc
   namespace: haproxy-ingress-system
-  labels:
-    app.kubernetes.io/name: haproxy-ingress-controller
-    app.kubernetes.io/part-of: haproxy-ingress-controller
 spec:
   type: ClusterIP
-  selector:
-    app.kubernetes.io/name: haproxy-ingress-controller
-    app.kubernetes.io/part-of: haproxy-ingress-controller
   ports:
   - name: stat
     port: 1024
-    protocol: TCP
-    targetPort: 1024
-  - name: healthz
-    port: 1042
-    protocol: TCP
-    targetPort: 1042s
+    targetPort: stat
+  selector:
+    app.kubernetes.io/name: haproxy-ingress-controller
