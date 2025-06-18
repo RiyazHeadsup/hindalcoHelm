@@ -23,6 +23,7 @@ spec:
     - hosts:
         - hilbgmstgapi.adityabirla.com
         - hilbgmstg.adityabirla.com
+        - hilbgmstgmqtt.adityabirla.com  # Added MQTT domain
       secretName: adityabirla-ssl-secret
   rules:
     - host: hilbgmstgapi.adityabirla.com
@@ -45,6 +46,16 @@ spec:
                 name: frontend-service
                 port:
                   number: 3000
+    - host: hilbgmstgmqtt.adityabirla.com  # Optional: allows HTTP fallback for visibility
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: broker-mosquitto
+                port:
+                  number: 1883
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -52,4 +63,4 @@ metadata:
   name: haproxy-tcp-services-configmap
   namespace: haproxy-ingress-system
 data:
-  "1883": "default/broker-mosquitto:1883"
+  "1883": "default/broker-mosquitto:1883"  # Already correct, no change needed
