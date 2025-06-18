@@ -2,7 +2,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: services-ingress
-  namespace: default
+  namespace: haproxy-ingress-system
   annotations:
     # Path rewrite
     haproxy.org/path-rewrite: "/"
