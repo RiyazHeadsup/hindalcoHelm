@@ -4,7 +4,6 @@ metadata:
   name: services-ingress
   namespace: default
   annotations:
-    #haproxy.org/path-rewrite: "/"
     haproxy.org/cors-enable: "true"
     haproxy.org/cors-allow-origin: "https://hilbgmstg.adityabirla.com,http://hilbgmstg.adityabirla.com"
     haproxy.org/cors-allow-methods: "GET, PUT, POST, DELETE, PATCH, OPTIONS"
@@ -18,10 +17,8 @@ metadata:
     haproxy.org/load-balance: "roundrobin"
     haproxy.org/check-http: "/"
     haproxy.org/forwarded-for: "enabled"
-    
-
 spec:
-  ingressClassName: haproxy-ingress-class
+  ingressClassName: haproxy
   tls:
     - hosts:
         - hilbgmstgapi.adityabirla.com
@@ -49,7 +46,6 @@ spec:
                 port:
                   number: 3000
 ---
-# MQTT TCP Mapping for port 1883 (this is used by HAProxy Ingress controller separately)
 apiVersion: v1
 kind: ConfigMap
 metadata:
