@@ -124,6 +124,7 @@ spec:
         - --controller-class=haproxy.org/ingress-controller
         - --healthz-port=1042
         - --runtime-api=/var/run/haproxy-runtime-api.sock
+        - --default-ssl-certificate=default/adityabirla-ssl-secret
         securityContext:
           runAsUser: 0
           runAsGroup: 0
