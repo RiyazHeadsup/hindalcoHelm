@@ -85,6 +85,16 @@ rules:
 - apiGroups: ["discovery.k8s.io"]
   resources: ["endpointslices"]
   verbs: ["list", "watch", "get"]
+# Gateway API and CRD permissions
+- apiGroups: ["apiextensions.k8s.io"]
+  resources: ["customresourcedefinitions"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["gateway.networking.k8s.io"]
+  resources: ["gateways", "gatewayClasses", "httproutes", "tcproutes", "tlsroutes"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["gateway.networking.k8s.io"]
+  resources: ["gateways/status", "httproutes/status", "tcproutes/status", "tlsroutes/status"]
+  verbs: ["update"]
 
 ---
 # Role for namespace-specific permissions
@@ -258,8 +268,16 @@ spec:
         volumeMounts:
         - name: haproxy-config-volume
           mountPath: /etc/haproxy
+        - name: haproxy-runtime-volume
+          mountPath: /var/run
+        - name: haproxy-tmp-volume
+          mountPath: /tmp
       volumes:
       - name: haproxy-config-volume
+        emptyDir: {}
+      - name: haproxy-runtime-volume
+        emptyDir: {}
+      - name: haproxy-tmp-volume
         emptyDir: {}
 
 ---
