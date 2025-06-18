@@ -12,9 +12,6 @@ metadata:
     haproxy.org/cors-allow-headers: "DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Authorization,X-Forwarded-For"
     haproxy.org/cors-allow-credentials: "true"
     haproxy.org/cors-max-age: "86400"
-    # SSL Configuration - Updated for better compatibility
-    haproxy.org/ssl-redirect: "false"  # Temporarily disable to test
-    haproxy.org/ssl-certificate: "adityabirla-ssl-secret"
     # HAProxy specific optimizations
     haproxy.org/timeout-connect: "5s"
     haproxy.org/timeout-client: "50s"
@@ -25,13 +22,6 @@ metadata:
     haproxy.org/load-balance: "roundrobin"
 spec:
   ingressClassName: haproxy-ingress-class
-  # TLS Configuration
-  tls:
-  - hosts:
-    - hilbgmstgapi.adityabirla.com
-    - hilbgmstg.adityabirla.com
-    - hilbgmstgmqtt.adityabirla.com
-    secretName: adityabirla-ssl-secret  # Your SSL secret name
   rules:
   - host: hilbgmstgapi.adityabirla.com
     http:
@@ -63,9 +53,7 @@ spec:
             name: broker-mosquitto
             port:
               number: 1883
-
 ---
-# Updated TCP Services ConfigMap for MQTT (matching new namespace and naming)
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -73,4 +61,3 @@ metadata:
   namespace: haproxy-ingress-system
 data:
   "1883": "default/broker-mosquitto:1883"
-  
