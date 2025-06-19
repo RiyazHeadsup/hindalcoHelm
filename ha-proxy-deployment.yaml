@@ -115,7 +115,7 @@ spec:
           image: haproxytech/kubernetes-ingress:1.10
           args:
            # - --configmap=$(POD_NAMESPACE)/haproxy-ingress-configmap
-            - --tcp-services-configmap=$(POD_NAMESPACE)/haproxy-tcp-services-configmap
+            - --configmap=$(POD_NAMESPACE)/haproxy-tcp-services-configmap
             - --default-backend-service=$(POD_NAMESPACE)/haproxy-ingress-default-backend-svc
            # - --ingress.class=haproxy
             - --publish-service=$(POD_NAMESPACE)/haproxy-ingress-controller-svc
