@@ -7,19 +7,19 @@ metadata:
     app.kubernetes.io/name: haproxy-ingress-controller
 
 ---
-#apiVersion: v1
-#kind: ConfigMap
-#metadata:
-#  name: haproxy-ingress-configmap
-#  namespace: haproxy-ingress-system
-#  labels:
-#    app.kubernetes.io/name: haproxy-ingress-controller
-#data:
-#  timeout-connect: "5s"
-#  timeout-client: "50s"
-#  timeout-server: "50s"
-#  timeout-tunnel: "1h"
-#  timeout-http-request: "5s"
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: haproxy-ingress-configmap
+  namespace: haproxy-ingress-system
+  labels:
+    app.kubernetes.io/name: haproxy-ingress-controller
+data:
+  timeout-connect: "5s"
+  timeout-client: "50s"
+  timeout-server: "50s"
+  timeout-tunnel: "1h"
+  timeout-http-request: "5s"
 
 ---
 apiVersion: v1
@@ -114,8 +114,8 @@ spec:
         - name: haproxy-ingress-controller
           image: haproxytech/kubernetes-ingress:1.10
           args:
-           # - --configmap=$(POD_NAMESPACE)/haproxy-ingress-configmap
-            - --configmap=$(POD_NAMESPACE)/haproxy-tcp-services-configmap
+            - --configmap=$(POD_NAMESPACE)/haproxy-ingress-configmap
+            - --tcp-services-configmap=$(POD_NAMESPACE)/haproxy-tcp-services-configmap
             - --default-backend-service=$(POD_NAMESPACE)/haproxy-ingress-default-backend-svc
            # - --ingress.class=haproxy
             - --publish-service=$(POD_NAMESPACE)/haproxy-ingress-controller-svc
