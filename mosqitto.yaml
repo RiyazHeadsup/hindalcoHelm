@@ -1,0 +1,299 @@
+# ConfigMap for Mosquitto configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hindalcodevbroker-configmap
+  namespace: default
+data:
+  mosquitto.conf: |
+    # Basic configuration
+    listener 1883 0.0.0.0
+    protocol mqtt
+    
+    # WebSocket listener
+    listener 9001 0.0.0.0
+    protocol websockets
+    
+    # Authentication
+    allow_anonymous true
+    
+    # Logging
+    log_dest stdout
+    log_type all
+    log_type debug
+    connection_messages true
+    
+    # Persistence
+    persistence true
+    persistence_location /mosquitto/data/
+    autosave_interval 1800
+    
+    # Security
+    max_connections -1
+    max_inflight_messages 0
+  
+  passwd: |
+    admin:$7$101$2vJj7p0dLZ8X4+4i$qoWd5qhiRqFgXk4z8pS5ZvQ9hKJL3mO8nP1qR6sT7uV2wX9yA5bC8dE0fG2hI4jK6lM8nO0pQ2rS4tU6vW8xY0zA==
+
+---
+# PersistentVolume for each node (you'll need one per node)
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mosquitto-pv-node1
+  labels:
+    node: node1
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: manual
+  hostPath:
+    path: /mnt/data/mosquitto-node1
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mosquitto-pv-node2
+  labels:
+    node: node2
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: manual
+  hostPath:
+    path: /mnt/data/mosquitto-node2
+
+---
+# DaemonSet for Mosquitto - Runs on every worker node
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: mosquitto-daemonset
+  namespace: default
+  labels:
+    app: mosquitto
+    component: mosquitto-daemon
+spec:
+  selector:
+    matchLabels:
+      app: mosquitto
+      component: mosquitto-daemon
+  template:
+    metadata:
+      labels:
+        app: mosquitto
+        component: mosquitto-daemon
+    spec:
+      # Node selector to run only on worker nodes
+      nodeSelector:
+        kubernetes.io/os: linux
+      # Tolerations to ensure it runs on all nodes if needed
+      tolerations:
+        - key: node-role.kubernetes.io/master
+          operator: Exists
+          effect: NoSchedule
+        - key: node-role.kubernetes.io/control-plane
+          operator: Exists
+          effect: NoSchedule
+      
+      # Security context
+      securityContext:
+        fsGroup: 1883
+        runAsUser: 1883
+        runAsGroup: 1883
+        fsGroupChangePolicy: "OnRootMismatch"
+      
+      containers:
+        - name: mosquitto
+          image: eclipse-mosquitto:2.0.18
+          ports:
+            - name: mqtt
+              containerPort: 1883
+              protocol: TCP
+              # HostPort makes MQTT accessible on each node's IP
+              hostPort: 1883
+            - name: websocket
+              containerPort: 9001
+              protocol: TCP
+              # HostPort for WebSocket access
+              hostPort: 9001
+          
+          env:
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+          
+          volumeMounts:
+            - name: mosquitto-config
+              mountPath: /mosquitto/config
+              readOnly: true
+            - name: mosquitto-data
+              mountPath: /mosquitto/data
+            - name: mosquitto-log
+              mountPath: /mosquitto/log
+          
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "200m"
+              memory: "256Mi"
+          
+          # Health checks
+          livenessProbe:
+            tcpSocket:
+              port: 1883
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+            
+          readinessProbe:
+            tcpSocket:
+              port: 1883
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+      
+      volumes:
+        - name: mosquitto-config
+          configMap:
+            name: hindalcodevbroker-configmap
+        - name: mosquitto-data
+          hostPath:
+            path: /mnt/data/mosquitto
+            type: DirectoryOrCreate
+        - name: mosquitto-log
+          hostPath:
+            path: /var/log/mosquitto
+            type: DirectoryOrCreate
+      
+      restartPolicy: Always
+
+---
+# LoadBalancer Service for external MQTT access
+apiVersion: v1
+kind: Service
+metadata:
+  name: mosquitto-loadbalancer
+  namespace: default
+  labels:
+    app: mosquitto
+    service-type: loadbalancer
+spec:
+  type: LoadBalancer
+  selector:
+    app: mosquitto
+    component: mosquitto-daemon
+  ports:
+    - name: mqtt
+      port: 1883
+      targetPort: mqtt
+      protocol: TCP
+    - name: websocket
+      port: 9001
+      targetPort: websocket
+      protocol: TCP
+  # External traffic policy to preserve client IP
+  externalTrafficPolicy: Local
+  # Session affinity for MQTT connections
+  sessionAffinity: ClientIP
+  sessionAffinityConfig:
+    clientIP:
+      timeoutSeconds: 86400  # 24 hours
+
+---
+# NodePort Service as alternative access method
+apiVersion: v1
+kind: Service
+metadata:
+  name: mosquitto-nodeport
+  namespace: default
+  labels:
+    app: mosquitto
+    service-type: nodeport
+spec:
+  type: NodePort
+  selector:
+    app: mosquitto
+    component: mosquitto-daemon
+  ports:
+    - name: mqtt
+      port: 1883
+      targetPort: mqtt
+      nodePort: 31883  # Accessible on any node IP:31883
+      protocol: TCP
+    - name: websocket
+      port: 9001
+      targetPort: websocket
+      nodePort: 31901  # Accessible on any node IP:31901
+      protocol: TCP
+
+---
+# Headless Service for internal discovery
+apiVersion: v1
+kind: Service
+metadata:
+  name: mosquitto-headless
+  namespace: default
+  labels:
+    app: mosquitto
+    service-type: headless
+spec:
+  clusterIP: None
+  selector:
+    app: mosquitto
+    component: mosquitto-daemon
+  ports:
+    - name: mqtt
+      port: 1883
+      targetPort: mqtt
+      protocol: TCP
+    - name: websocket
+      port: 9001
+      targetPort: websocket
+      protocol: TCP
+
+---
+# NetworkPolicy for MQTT traffic (optional security)
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: mosquitto-network-policy
+  namespace: default
+spec:
+  podSelector:
+    matchLabels:
+      app: mosquitto
+      component: mosquitto-daemon
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from: []  # Allow from anywhere
+    ports:
+    - protocol: TCP
+      port: 1883
+    - protocol: TCP
+      port: 9001
+  egress:
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 53  # DNS
+    - protocol: UDP
+      port: 53  # DNS
