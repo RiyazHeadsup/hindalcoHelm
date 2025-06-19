@@ -7,19 +7,19 @@ metadata:
     app.kubernetes.io/name: haproxy-ingress-controller
 
 ---
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: haproxy-ingress-configmap
-  namespace: haproxy-ingress-system
-  labels:
-    app.kubernetes.io/name: haproxy-ingress-controller
-data:
-  timeout-connect: "5s"
-  timeout-client: "50s"
-  timeout-server: "50s"
-  timeout-tunnel: "1h"
-  timeout-http-request: "5s"
+#apiVersion: v1
+#kind: ConfigMap
+#metadata:
+#  name: haproxy-ingress-configmap
+#  namespace: haproxy-ingress-system
+#  labels:
+#    app.kubernetes.io/name: haproxy-ingress-controller
+#data:
+#  timeout-connect: "5s"
+#  timeout-client: "50s"
+#  timeout-server: "50s"
+#  timeout-tunnel: "1h"
+#  timeout-http-request: "5s"
 
 ---
 apiVersion: v1
