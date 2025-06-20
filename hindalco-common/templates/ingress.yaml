@@ -68,12 +68,12 @@ spec:
                   number: 1883
    
 ---
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: haproxy-tcp-services-configmap
-  namespace: haproxy-ingress-system
-  labels:
-    app.kubernetes.io/name: haproxy-ingress-controller
-data:
-  "1883": "default/broker-mosquitto:1883"  
+#apiVersion: v1
+#kind: ConfigMap
+#metadata:
+#  name: haproxy-tcp-services-configmap
+#  namespace: haproxy-ingress-system
+#  labels:
+#    app.kubernetes.io/name: haproxy-ingress-controller
+#data:
+#  "1883": "default/broker-mosquitto:1883"  
