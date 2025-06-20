@@ -46,7 +46,7 @@ spec:
               service:
                 name: broker
                 port:
-                  number: 32079
+                  number: 8085
     - host: hilbgmstg.adityabirla.com
       http:
         paths:
@@ -66,7 +66,7 @@ spec:
               service:
                 name: broker-mosquitto
                 port:
-                  number: 30544
+                  number: 1883
    
 ---
 apiVersion: v1
