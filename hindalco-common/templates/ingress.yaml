@@ -15,7 +15,8 @@ metadata:
     haproxy.org/timeout-client: "50s"
     haproxy.org/timeout-server: "50s"
     haproxy.org/load-balance: "roundrobin"
-    haproxy.org/check-http: "/"
+    haproxy.org/check-http: "/health"
+    haproxy.org/check-http-method: "GET"
     haproxy.org/forwarded-for: "true"
 spec:
   ingressClassName: haproxy
@@ -45,7 +46,7 @@ spec:
               service:
                 name: broker
                 port:
-                  number: 8085
+                  number: 32079
     - host: hilbgmstg.adityabirla.com
       http:
         paths:
@@ -65,7 +66,7 @@ spec:
               service:
                 name: broker-mosquitto
                 port:
-                  number: 1883
+                  number: 30544
    
 ---
 apiVersion: v1
