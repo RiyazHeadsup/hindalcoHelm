@@ -15,7 +15,6 @@ metadata:
     haproxy.org/timeout-client: "50s"
     haproxy.org/timeout-server: "50s"
     haproxy.org/load-balance: "roundrobin"
-    haproxy.org/path-rewrite: "/"
     haproxy.org/check-http: ""
     haproxy.org/forwarded-for: "true"
 spec:
