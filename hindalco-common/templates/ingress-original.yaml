@@ -1,0 +1,79 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: services-ingress
+  namespace: default
+  annotations:
+    haproxy.org/cors-enable: "true"
+    haproxy.org/cors-allow-origin: "https://hilbgmstg.adityabirla.com,http://hilbgmstg.adityabirla.com"
+    haproxy.org/cors-allow-methods: "GET, PUT, POST, DELETE, PATCH, OPTIONS"
+    haproxy.org/cors-allow-headers: "DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Authorization,X-Forwarded-For"
+    haproxy.org/cors-allow-credentials: "true"
+    haproxy.org/cors-max-age: "86400"
+    haproxy.org/ssl-redirect: "true"
+    haproxy.org/timeout-connect: "5s"
+    haproxy.org/timeout-client: "50s"
+    haproxy.org/timeout-server: "50s"
+    haproxy.org/load-balance: "roundrobin"
+    haproxy.org/check-http: ""
+    haproxy.org/forwarded-for: "true"
+spec:
+  ingressClassName: haproxy
+  tls:
+    - hosts:
+        - hilbgmstgapi.adityabirla.com
+        - hilbgmstg.adityabirla.com
+        - hilbgmstgmqtt.adityabirla.com  # Added MQTT domain
+      secretName: adityabirla-ssl-secret
+  rules:
+    - host: hilbgmstgapi.adityabirla.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: apigateway
+                port:
+                  number: 9090
+    - host: hilbgmstgapi.adityabirla.com
+      http:
+        paths:
+          - path: /broker
+            pathType: Prefix
+            backend:
+              service:
+                name: broker
+                port:
+                  number: 8085
+    - host: hilbgmstg.adityabirla.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend-service
+                port:
+                  number: 3000
+    - host: hilbgmstgmqtt.adityabirla.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: broker-mosquitto
+                port:
+                  number: 1883
+   
+---
+#apiVersion: v1
+#kind: ConfigMap
+#metadata:
+#  name: haproxy-tcp-services-configmap
+#  namespace: haproxy-ingress-system
+#  labels:
+#    app.kubernetes.io/name: haproxy-ingress-controller
+#data:
+#  "1883": "default/broker-mosquitto:1883"  
