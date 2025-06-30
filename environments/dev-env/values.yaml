@@ -7,7 +7,7 @@ global:
   mongodb_database: hindalco
   secret_jwt: abcd123abcd123
   exprire_jwt: 360000
-  mongodb_uri: "mongodb://10.36.29.122:27017,10.36.29.123:27017,10.36.29.124:27017,10.36.29.125:27017/hindalco?replicaSet=repl0&readPreference=primary"
+  #mongodb_uri: "mongodb://10.36.29.122:27017,10.36.29.123:27017,10.36.29.124:27017,10.36.29.125:27017/hindalco?replicaSet=repl0&readPreference=primary"
 #sa
 # apigateway:
 #   ingress:

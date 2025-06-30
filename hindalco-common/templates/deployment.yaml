@@ -62,13 +62,6 @@ spec:
              key: MONGODB_PORT
        {{- end }}  
        {{- if .Values.mongo_host_enable }}
-       - name: MONGODB_URI
-         valueFrom:
-           configMapKeyRef:
-             name: {{ .Values.global.configMapName }}
-             key: MONGODB_URI
-       {{- end }}
-       {{- if .Values.mongo_host_enable }}
        - name: MONGODB_DATABASE
          valueFrom:
            configMapKeyRef:
