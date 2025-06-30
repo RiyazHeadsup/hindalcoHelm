@@ -23,10 +23,19 @@ spec:
     - hosts:
         - hilbgmstgapi.adityabirla.com
         - hilbgmstg.adityabirla.com
-        - hilbgmstgmqtt.adityabirla.com
+        - hilbgmstgmqtt.adityabirla.com  # Added MQTT domain
       secretName: adityabirla-ssl-secret
   rules:
-    # API Gateway Rules
+    - host: hilbgmstgapi.adityabirla.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: apigateway
+                port:
+                  number: 9090
     - host: hilbgmstgapi.adityabirla.com
       http:
         paths:
@@ -37,77 +46,9 @@ spec:
                 name: broker
                 port:
                   number: 8085
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: apigateway
-                port:
-                  number: 9090
-    
-    # Frontend Rules - CRITICAL: Static assets must be handled first
     - host: hilbgmstg.adityabirla.com
       http:
         paths:
-          # Handle static assets first (CSS, JS, images, etc.)
-          - path: /static
-            pathType: Prefix
-            backend:
-              service:
-                name: frontend-service
-                port:
-                  number: 3000
-          - path: /assets
-            pathType: Prefix
-            backend:
-              service:
-                name: frontend-service
-                port:
-                  number: 3000
-          - path: /js
-            pathType: Prefix
-            backend:
-              service:
-                name: frontend-service
-                port:
-                  number: 3000
-          - path: /css
-            pathType: Prefix
-            backend:
-              service:
-                name: frontend-service
-                port:
-                  number: 3000
-          - path: /images
-            pathType: Prefix
-            backend:
-              service:
-                name: frontend-service
-                port:
-                  number: 3000
-          - path: /fonts
-            pathType: Prefix
-            backend:
-              service:
-                name: frontend-service
-                port:
-                  number: 3000
-          # Handle manifest and favicon
-          - path: /manifest.json
-            pathType: Exact
-            backend:
-              service:
-                name: frontend-service
-                port:
-                  number: 3000
-          - path: /favicon.ico
-            pathType: Exact
-            backend:
-              service:
-                name: frontend-service
-                port:
-                  number: 3000
-          # Catch-all rule for SPA routing (must be last)
           - path: /
             pathType: Prefix
             backend:
@@ -115,8 +56,6 @@ spec:
                 name: frontend-service
                 port:
                   number: 3000
-    
-    # MQTT Rules
     - host: hilbgmstgmqtt.adityabirla.com
       http:
         paths:
@@ -127,3 +66,14 @@ spec:
                 name: broker-mosquitto
                 port:
                   number: 1883
+   
+---
+#apiVersion: v1
+#kind: ConfigMap
+#metadata:
+#  name: haproxy-tcp-services-configmap
+#  namespace: haproxy-ingress-system
+#  labels:
+#    app.kubernetes.io/name: haproxy-ingress-controller
+#data:
+#  "1883": "default/broker-mosquitto:1883"  
