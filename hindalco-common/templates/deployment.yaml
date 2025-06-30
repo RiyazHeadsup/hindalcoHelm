@@ -53,6 +53,11 @@ spec:
            configMapKeyRef:
              name: {{ .Values.global.configMapName }}
              key: MONGODB_HOST
+       - name: MONGODB_URI
+         valueFrom:
+           configMapKeyRef:
+             name: {{ .Values.global.configMapName }}
+             key: MONGODB_URI
        {{- end }}  
        {{- if .Values.mongo_host_enable }}
        - name: MONGODB_PORT
